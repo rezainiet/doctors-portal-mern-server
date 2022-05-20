@@ -19,12 +19,20 @@ async function run() {
     try {
         await client.connect();
         const servicesCollection = client.db('doctors_portal').collection('services');
+        const bookingCollection = client.db('doctors_portal').collection('bookings')
+
 
 
         app.get('/service', async (req, res) => {
             const query = {};
             const services = await servicesCollection.find(query);
             const result = await services.toArray();
+            res.send(result);
+        });
+
+        app.post('/booking', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingCollection.insertOne(booking);
             res.send(result);
         })
     }
@@ -40,5 +48,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log('Doctors App listening on port ${port}')
+    console.log(`Doctors App listening on port ${port}`)
 })
