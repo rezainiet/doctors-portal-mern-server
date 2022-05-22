@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
-
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -32,15 +32,16 @@ async function run() {
         });
 
         app.put('/user/:email', async (req, res) => {
-            const email = req.query.email;
+            const email = req.params.email;
             const user = req.body;
             const filter = { email: email };
             const options = { upsert: true };
             const updateDoc = {
-                $set: user
+                $set: user,
             };
             const result = await userCollection.insertOne(filter, updateDoc, options);
-            res.send(result);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send({ result, token });
         })
 
         app.get('/booking', async (req, res) => {
